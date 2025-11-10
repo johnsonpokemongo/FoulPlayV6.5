@@ -470,3 +470,22 @@ async def room_compat():
 async def state_compat():
     return {"room": None, "state": None}
 
+
+from fastapi import Response
+from pathlib import Path
+
+@app.get("/logs/backend")
+async def logs_backend(n: int = 200):
+    p = Path("logs/backend/backend.log")
+    if not p.exists():
+        return Response("", media_type="text/plain")
+    lines = p.read_text(encoding="utf-8", errors="ignore").splitlines()
+    return Response("\n".join(lines[-n:]), media_type="text/plain")
+
+@app.get("/logs/bot")
+async def logs_bot(n: int = 200):
+    p = Path("logs/bot/bot.log")
+    if not p.exists():
+        return Response("", media_type="text/plain")
+    lines = p.read_text(encoding="utf-8", errors="ignore").splitlines()
+    return Response("\n".join(lines[-n:]), media_type="text/plain")
