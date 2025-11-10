@@ -1,0 +1,22 @@
+{
+  "name": "@pkmn/predictor",
+  "version": "0.0.1",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "description": "Library for predicting likely instances of an opponent's Pokémon team",
+  "repository": "github:pkmn/EPOke",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "lint": "eslint --cache src --ext ts",
+    "fix": "eslint --fix src --ext ts",
+    "compile": "tsc -p .",
+    "build": "npm run compile",
+    "test": "vitest src"
+  },
+  "eslintConfig": {
+    "extends": "@pkmn"
+  }
+}

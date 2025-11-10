@@ -1,0 +1,188 @@
+"""
+Decision Logger for FoulPlay
+Logs AI decisions (MCTS, EPoké, Hybrid) to JSONL format
+"""
+import os
+import json
+import time
+import threading
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+# Configuration
+_LOG_DIR = Path(os.environ.get("FP_LOG_DIR", "logs"))
+_LOG_DIR.mkdir(parents=True, exist_ok=True)
+_DECISION_LOG = _LOG_DIR / "decisions.jsonl"
+_LOCK = threading.Lock()
+
+def _now_ms() -> int:
+    """Get current timestamp in milliseconds"""
+    return int(time.time() * 1000)
+
+def _append_jsonl(path: Path, obj: Dict[str, Any]) -> None:
+    """
+    Append JSON object to JSONL file (thread-safe)
+    """
+    with _LOCK:
+        with path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+
+def log_mcts_decision(
+    battle_id: str,
+    turn: int,
+    chosen_move: str,
+    policies: Optional[List[Dict[str, Any]]] = None,
+    search_time_ms: Optional[float] = None,
+    extra: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Log an MCTS-only decision
+    
+    Args:
+        battle_id: Battle identifier
+        turn: Turn number
+        chosen_move: Move that was selected
+        policies: List of MCTS policy results
+        search_time_ms: Time spent searching
+        extra: Additional metadata
+        
+    Returns: The logged decision object
+    """
+    row = {
+        "ts": _now_ms(),
+        "battle_id": battle_id,
+        "turn": turn,
+        "selected_move": chosen_move,
+        "mode": "MCTS",
+        "mcts_choices": policies or [],
+        "mcts_search_time_ms": search_time_ms,
+        "epoke_choice": None,  # Add for frontend compatibility
+    }
+    
+    if extra:
+        row.update(extra)
+    
+    _append_jsonl(_DECISION_LOG, row)
+    return row
+
+def log_hybrid_decision(
+    battle_id: str,
+    turn: int,
+    mcts_move: str,
+    mcts_confidence: float,
+    epoke_move: Optional[str],
+    epoke_confidence: Optional[float],
+    chosen_move: str,
+    chosen_source: str,
+    mcts_choices: Optional[List[Dict[str, Any]]] = None,
+    timings_ms: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Log a hybrid decision (EPoké + MCTS)
+    
+    Args:
+        battle_id: Battle identifier
+        turn: Turn number
+        mcts_move: Move suggested by MCTS
+        mcts_confidence: MCTS confidence (0-1)
+        epoke_move: Move suggested by EPoké
+        epoke_confidence: EPoké confidence (0-1)
+        chosen_move: Final selected move
+        chosen_source: "AGREEMENT", "EPOKE", "MCTS", "MCTS_DEFAULT", "MANUAL"
+        mcts_choices: MCTS policy list
+        timings_ms: Timing metadata
+        
+    Returns: The logged decision object
+    """
+    row = {
+        "ts": _now_ms(),
+        "battle_id": battle_id,
+        "turn": turn,
+        "mode": "HYBRID",
+        "mcts_move": mcts_move,
+        "mcts_confidence": mcts_confidence,
+        "epoke_move": epoke_move,
+        "epoke_confidence": epoke_confidence,
+        "selected_move": chosen_move,
+        "chosen_source": chosen_source,
+        "mcts_choices": mcts_choices or [],
+        "epoke_choice": {"move": epoke_move, "confidence": epoke_confidence} if epoke_move else None,
+        "timings_ms": timings_ms or {},
+    }
+    
+    _append_jsonl(_DECISION_LOG, row)
+    return row
+
+def latest_decision() -> Optional[Dict[str, Any]]:
+    """
+    Get the most recent decision from the log
+    
+    Returns: Latest decision dict or None if no decisions logged
+    """
+    if not _DECISION_LOG.exists():
+        return None
+    
+    last = None
+    try:
+        with _DECISION_LOG.open("r", encoding="utf-8") as f:
+            for line in f:
+                try:
+                    last = json.loads(line)
+                except Exception:
+                    continue
+    except Exception:
+        return None
+    
+    return last
+
+def get_recent_decisions(n: int = 50) -> List[Dict[str, Any]]:
+    """
+    Get the N most recent decisions
+    
+    Args:
+        n: Number of decisions to retrieve
+        
+    Returns: List of decision dicts
+    """
+    if not _DECISION_LOG.exists():
+        return []
+    
+    decisions = []
+    try:
+        with _DECISION_LOG.open("r", encoding="utf-8") as f:
+            for line in f:
+                try:
+                    decisions.append(json.loads(line))
+                except Exception:
+                    continue
+    except Exception:
+        return []
+    
+    return decisions[-n:]
+
+def get_battle_decisions(battle_id: str) -> List[Dict[str, Any]]:
+    """
+    Get all decisions for a specific battle
+    
+    Args:
+        battle_id: Battle identifier
+        
+    Returns: List of decisions for that battle
+    """
+    if not _DECISION_LOG.exists():
+        return []
+    
+    decisions = []
+    try:
+        with _DECISION_LOG.open("r", encoding="utf-8") as f:
+            for line in f:
+                try:
+                    data = json.loads(line)
+                    if data.get("battle_id") == battle_id:
+                        decisions.append(data)
+                except Exception:
+                    continue
+    except Exception:
+        return []
+    
+    return decisions

@@ -1,0 +1,38 @@
+{
+  "name": "@pkmn/spreads",
+  "version": "0.1.0",
+  "description": "Library for manipulating and displaying Pokémon stats, spreads, and ranges",
+  "repository": "github:pkmn/EPOke",
+  "license": "MIT",
+  "sideEffects": false,
+  "main": "build/index.js",
+  "module": "build/index.mjs",
+  "types": "build/index.d.ts",
+  "files": ["build"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@pkmn/types": "^4.0.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.1"
+  },
+  "scripts": {
+    "lint": "eslint --cache src --ext ts",
+    "fix": "eslint --fix src --ext ts",
+    "compile": "tsc -p .",
+    "build": "npm run compile && tsup src/index.ts",
+    "test": "vitest src/test"
+  },
+  "tsup": {
+    "outDir": "build",
+    "format": ["cjs", "esm"],
+    "sourcemap": true,
+    "dts": true,
+    "clean": true
+  },
+  "eslintConfig": {
+    "extends": "@pkmn"
+  }
+}
