@@ -42,7 +42,7 @@ def init_logging(level, log_to_file):
     FoulPlayConfig.stdout_log_handler = stdout_handler
 
     if log_to_file:
-        file_handler = CustomRotatingFileHandler(os.path.join(os.environ.get("FP_LOG_DIR", "."), "bot.log"))
+        file_handler = CustomRotatingFileHandler("bot.log")
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(CustomFormatter())
         logger.addHandler(file_handler)

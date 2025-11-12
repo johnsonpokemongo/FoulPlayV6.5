@@ -1,0 +1,41 @@
+FoulPlay V6.5 — Start Button Reliability Patch
+=====================================================
+What this fixes
+- Prevents launching the bot with blank Showdown credentials (the #1 cause of instant exit).
+- Merges server-side config: DEFAULTS + saved config + request body.
+- Validates required fields on /start and returns HTTP 400 if missing.
+- Stops injecting empty --ps-username/--ps-password flags.
+- Makes /status more truthful by recording last_exit_code and last_stderr_tail (if present).
+- Optionally unifies bot logs using FP_LOG_DIR environment variable.
+- Frontend: removes phantom /control/start call and blocks Start until creds are filled (optional; see verifier).
+
+Files the patcher touches (if present)
+- backend/main.py
+- foul-play/config.py
+- frontend/src/tabs/FoulPlayGUI.jsx
+
+Backups
+- Before modifying a file, the patcher writes a timestamped backup next to it, e.g. main.py.bak_YYYYMMDD_HHMMSS.
+
+How to apply
+1) Place this ZIP at the project root: FoulPlayV6.5/
+2) Unzip it. You'll see:
+   - apply_v65_botstart_fix.py
+   - verify_v65_botstart_fix.py
+   - rollback_v65_botstart_fix.py
+   - PATCH_NOTES.txt
+3) (Optional) source your venv.
+4) Run:  python3 apply_v65_botstart_fix.py
+5) Start your stack (./scripts/start_all.sh) and press Start in the UI.
+6) If something looks off, run:  python3 rollback_v65_botstart_fix.py
+
+Verification
+- Run:  python3 verify_v65_botstart_fix.py
+- It checks the key diffs and prints a short report.
+
+Notes
+- The patcher is idempotent: you can run it again; it’ll skip already-applied edits.
+- No external packages are used.
+- If any target file is missing, the patcher will report it and keep going for others.
+
+-- Atlas
