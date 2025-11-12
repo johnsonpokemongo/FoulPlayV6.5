@@ -53,3 +53,7 @@ services/pkmn-svc/dist/
 services/epoke-svc/dist/
 frontend/dist/
 frontend/build/
+*.pyc
+backend/.env
+frontend/.env
+config/.env

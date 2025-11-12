@@ -170,7 +170,7 @@ async def start_battle_common(ps_websocket_client, pokemon_battle_type):
                 winner = msg.split(constants.WIN_STRING)[-1].split("\n")[0].strip()
                 await ps_websocket_client.leave_battle(battle_tag)
                 return winner
-            action_required = await process_battle_updates(battle, msg)
+            action_required = process_battle_updates(battle, msg.split('\n'))
             if action_required and not battle.wait:
                 battle_copy = deepcopy(battle)
                 best_move = await async_pick_move(battle_copy)

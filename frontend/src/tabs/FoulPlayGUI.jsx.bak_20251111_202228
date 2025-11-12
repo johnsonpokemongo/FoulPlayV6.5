@@ -129,8 +129,7 @@ export default function FoulPlayGUI() {
     return () => clearInterval(id);
   }, [logSource]);
 
-const canStart = (username && password);
-async function startBot() {
+  async function startBot() {
     if (busy) return;
     setBusy(true);
     setError(null);
@@ -153,7 +152,7 @@ async function startBot() {
         decision_deadline_ms: Number(decisionDeadlineMs) || 5000,
       };
 
-      const endpoints = [`/start`];
+      const endpoints = [`${API_BASE}/start`, `${API_BASE}/control/start`];
 
       for (const url of endpoints) {
         let r = await fetch(url, {
@@ -201,7 +200,7 @@ async function startBot() {
         }
       }
 
-      throw new Error("Start endpoint not found on backend (/start or /start).");
+      throw new Error("Start endpoint not found on backend (/start or /control/start).");
     } catch (e) {
       console.error("Start failed:", e);
       setError(String(e?.message || e));
@@ -260,7 +259,7 @@ async function startBot() {
             </div>
             <div className="flex gap-2">
               <button
-                disabled={!canStart} onClick={startBot}
+                onClick={startBot}
                 disabled={busy || running}
                 className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium ${
                   running ? "bg-gray-800 text-gray-400" : "bg-emerald-600 hover:bg-emerald-500"

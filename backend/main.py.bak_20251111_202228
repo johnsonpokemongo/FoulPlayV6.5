@@ -221,26 +221,6 @@ def status():
 
 @app.post("/start")
 async def start(req: Request):
-    data = await req.json() if "req" in locals() or "req" in globals() else {}
-    try:
-        saved = load_saved_config() if "load_saved_config" in globals() else {}
-    except Exception:
-        saved = {}
-    try:
-        defaults = DEFAULTS
-    except Exception:
-        defaults = {}
-    cfg = {}
-    cfg.update(defaults or {})
-    cfg.update(saved or {})
-    cfg.update(data or {})
-
-    required = ["ps_username","ps_password","websocket_uri","bot_mode","pokemon_format"]
-    missing = [k for k in required if not str(cfg.get(k,"")).strip()]
-    if missing:
-        from fastapi import HTTPException
-        raise HTTPException(status_code=400, detail=f"Missing required fields: {', '.join(missing)}")
-
     if is_running():
         return JSONResponse({"error": "Already running"}, status_code=409)
     try:
