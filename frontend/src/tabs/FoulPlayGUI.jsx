@@ -260,8 +260,7 @@ async function startBot() {
             </div>
             <div className="flex gap-2">
               <button
-                disabled={!canStart} onClick={startBot}
-                disabled={busy || running}
+                onClick={startBot} disabled={!canStart || busy || running}
                 className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium ${
                   running ? "bg-gray-800 text-gray-400" : "bg-emerald-600 hover:bg-emerald-500"
                 } transition-colors`}

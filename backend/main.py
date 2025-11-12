@@ -31,6 +31,14 @@ from .battle_state_parser import BattleStateParser
 
 app = FastAPI()
 
+from backend.logs_frontend_route import router as logs_frontend_router
+
+app.include_router(logs_frontend_router)
+
+from backend.logs_frontend_route import router as logs_frontend_router
+app.include_router(logs_frontend_router)
+
+
 app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_credentials=False, allow_methods=['*'], allow_headers=['*'])
 HERE = Path(__file__).resolve()
 ROOT = HERE.parents[1]
@@ -508,4 +516,27 @@ async def logs_bot(n: int = 200):
     if not p.exists():
         return Response("", media_type="text/plain")
     lines = p.read_text(encoding="utf-8", errors="ignore").splitlines()
+    return Response("\n".join(lines[-n:]), media_type="text/plain")
+
+
+
+
+
+async def logs_frontend(n: int = 200):
+    from pathlib import Path
+    from fastapi import Response
+    p1=Path("logs/frontend/frontend.log")
+    p2=Path("logs/frontend/frontend.out")
+    p=p1 if p1.exists() else p2
+    if not p.exists():
+        return Response("", media_type="text/plain")
+    lines=p.read_text(encoding="utf-8", errors="ignore").splitlines()
+    return Response("
+".join(lines[-n:]), media_type="text/plain")
+
+    lines=p.read_text(encoding="utf-8", errors="ignore").splitlines()
+    return Response("
+".join(lines[-n:]), media_type="text/plain")
+
+    lines=p.read_text(encoding="utf-8", errors="ignore").splitlines()
     return Response("\n".join(lines[-n:]), media_type="text/plain")
