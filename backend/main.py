@@ -35,9 +35,6 @@ from backend.logs_frontend_route import router as logs_frontend_router
 
 app.include_router(logs_frontend_router)
 
-from backend.logs_frontend_route import router as logs_frontend_router
-app.include_router(logs_frontend_router)
-
 
 app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_credentials=False, allow_methods=['*'], allow_headers=['*'])
 HERE = Path(__file__).resolve()
