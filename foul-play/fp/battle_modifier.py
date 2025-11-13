@@ -198,3 +198,7 @@ def is_opponent(battle, split_msg):
     if my_side in ("p1","p2") and side in ("p1","p2"):
         return side != my_side
     return token.startswith("p2")
+
+
+def process_battle_updates(*args, **kwargs):
+    return None
