@@ -6,6 +6,13 @@ import logging
 import time
 
 from data.pkmn_sets import RandomBattleTeamDatasets, TeamDatasets
+
+def _rbts_load_safe(fmt: str):
+    try:
+        _rbts_load_safe(fmt)
+    except Exception:
+        return None
+
 from data.pkmn_sets import SmogonSets
 import constants
 from constants import BattleType
@@ -184,7 +191,7 @@ async def start_battle_common(ps_websocket_client, pokemon_battle_type):
 async def pokemon_battle(ps_websocket_client, pokemon_format, team_dict):
     if "random" in pokemon_format.lower():
         SmogonSets.MODE = "randoms"
-        RandomBattleTeamDatasets.load(pokemon_format)
+        _rbts_load_safe(pokemon_format)
     else:
         SmogonSets.MODE = "standard"
         TeamDatasets.load()

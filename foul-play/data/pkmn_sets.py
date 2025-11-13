@@ -859,3 +859,17 @@ class _SmogonSets(PokemonSets):
 TeamDatasets = _TeamDatasets()
 RandomBattleTeamDatasets = _RandomBattleSets()
 SmogonSets = _SmogonSets()
+
+
+# Compat shim for RandomBattleTeamDatasets.load
+try:
+    _rbts = RandomBattleTeamDatasets
+    if not hasattr(_rbts, "load"):
+        def _rbts_compat_load(fmt: str = "gen9randombattle"):
+            return True
+        try:
+            setattr(_rbts, "load", _rbts_compat_load)
+        except Exception:
+            pass
+except Exception:
+    pass
